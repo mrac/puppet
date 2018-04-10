@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Page-objects for Puppeteer testing",
   "main": "src/puppet.p.ts",
-  "bin": "bin/puppet.p.js",
+  "bin": {
+    "puppet": "bin/puppet.p.js",
+    "short": "bin/short.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
