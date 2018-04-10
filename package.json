@@ -1,6 +1,6 @@
 {
   "name": "puppet",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Page-objects for Puppeteer testing",
   "main": "src/puppet.p.ts",
   "bin": {
