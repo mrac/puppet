@@ -3,21 +3,21 @@
   "version": "1.0.0",
   "description": "Page-objects for Puppeteer testing",
   "main": "src/puppet.p.ts",
-  "dependencies": {
-    "puppeteer": "1.2.0"
-  },
-  "devDependencies": {},
+  "bin": "bin/puppet.p.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mrac/puppet.git"
   },
   "keywords": [
-    "Puppeteer",
+    "puppeteer",
+    "puppet",
     "testing",
     "page",
+    "object",
     "objects"
   ],
   "author": "Michal Raczkowski",
@@ -25,5 +25,14 @@
   "bugs": {
     "url": "https://github.com/mrac/puppet/issues"
   },
-  "homepage": "https://github.com/mrac/puppet#readme"
+  "homepage": "https://github.com/mrac/puppet#readme",
+  "dependencies": {
+    "jasmine": "3.1.0",
+    "puppeteer": "1.2.0"
+  },
+  "devDependencies": {
+    "@types/jasmine": "2.8.6",
+    "@types/puppeteer": "1.2.1",
+    "typescript": "2.8.1"
+  }
 }
