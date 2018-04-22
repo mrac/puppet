@@ -1,6 +1,6 @@
 {
   "name": "puppet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Page-objects for Puppeteer testing",
   "main": "src/puppet.p.ts",
   "bin": {
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/jasmine": "2.8.6",
-    "@types/puppeteer": "1.2.1",
+    "@types/puppeteer": "1.2.0",
     "typescript": "2.8.1"
   }
 }

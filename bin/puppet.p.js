@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const puppeteer = require("puppeteer");
+const puppeteer_1 = require("puppeteer");
 const short_1 = require("./short");
 const envDebug = process.env.DEBUG;
 class Puppet {
@@ -37,7 +37,9 @@ class Puppet {
             delete nativeOptions.debug;
             delete nativeOptions.width;
             delete nativeOptions.height;
-            const defaultOptions = {};
+            const defaultOptions = {
+                args: ['--no-sandbox', '--disable-dev-shm-usage']
+            };
             if (envDebug || options.debug) {
                 defaultOptions.headless = false;
                 defaultOptions.slowMo = 10;
@@ -45,19 +47,20 @@ class Puppet {
             }
             const width = options.width || 1024;
             const height = options.height || 768;
-            defaultOptions.args = [`--window-size=${width},${height}`];
+            defaultOptions.args = (defaultOptions.args || []).concat([`--window-size=${width},${height}`]);
             // by default ignore all HTTPS errors (necessary for https://localhost)
             defaultOptions.ignoreHTTPSErrors = true;
             // overwrite default options
             Object.assign(defaultOptions, nativeOptions);
             // launch puppeteer
-            browser = yield puppeteer.launch(defaultOptions);
+            browser = yield puppeteer_1.launch(defaultOptions);
             page = yield browser.newPage();
-            page.on('console', l => {
-                if (l['_text'] && !l['_text'].match(/Download the React DevTools/)) {
-                    console.log(l['_text']);
-                }
-            });
+            if (envDebug || options.debug) {
+                page.on('console', l => {
+                    // tslint:disable-next-line:no-console
+                    console.log('\x1b[36m%s\x1b[0m', l.text());
+                });
+            }
             yield page.setViewport({ width, height });
             return { browser, page };
         });

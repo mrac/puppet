@@ -1,5 +1,4 @@
-import * as puppeteer from 'puppeteer';
-import { Browser, Page, ElementHandle } from 'puppeteer';
+import { Browser, Page, ElementHandle, LaunchOptions, launch } from 'puppeteer';
 import { short as s } from './short';
 
 const envDebug = process.env.DEBUG;
@@ -13,7 +12,7 @@ export interface PuppetConfig {
   ascendantSelector?: string;
 }
 
-export interface LaunchOptions extends puppeteer.LaunchOptions {
+export interface PuppetLaunchOptions extends LaunchOptions {
   debug?: boolean;
   width?: number;
   height?: number;
@@ -36,14 +35,14 @@ export abstract class Puppet {
     this.ascendantSelector = config.ascendantSelector;
   }
 
-  static async start<T extends Puppet>(puppetConfig: PuppetConfig = {}, launchOptions?: LaunchOptions): Promise<T> {
+  static async start<T extends Puppet>(puppetConfig: PuppetConfig = {}, launchOptions?: PuppetLaunchOptions): Promise<T> {
     const PuppetConstructor = (this as any) as { new (config: PuppetConfig): T };
     const { browser, page } = await Puppet.launch(launchOptions);
     Object.assign(puppetConfig, { browser, page });
     return new PuppetConstructor(puppetConfig) as T;
   }
 
-  static async launch(options: LaunchOptions = {}): Promise<{ browser: Browser; page: Page }> {
+  static async launch(options: PuppetLaunchOptions = {}): Promise<{ browser: Browser; page: Page }> {
     let browser: Browser;
     let page: Page;
 
@@ -53,7 +52,9 @@ export abstract class Puppet {
     delete nativeOptions.width;
     delete nativeOptions.height;
 
-    const defaultOptions: puppeteer.LaunchOptions = {};
+    const defaultOptions: PuppetLaunchOptions = {
+      args: ['--no-sandbox', '--disable-dev-shm-usage']
+    };
 
     if (envDebug || options.debug) {
       defaultOptions.headless = false;
@@ -63,7 +64,7 @@ export abstract class Puppet {
 
     const width = options.width || 1024;
     const height = options.height || 768;
-    defaultOptions.args = [`--window-size=${width},${height}`];
+    defaultOptions.args = (defaultOptions.args || []).concat([`--window-size=${width},${height}`]);
 
     // by default ignore all HTTPS errors (necessary for https://localhost)
     defaultOptions.ignoreHTTPSErrors = true;
@@ -72,13 +73,16 @@ export abstract class Puppet {
     Object.assign(defaultOptions, nativeOptions);
 
     // launch puppeteer
-    browser = await puppeteer.launch(defaultOptions);
+    browser = await launch(defaultOptions);
     page = await browser.newPage();
-    page.on('console', l => {
-      if (l['_text'] && !l['_text'].match(/Download the React DevTools/)) {
-        console.log(l['_text']);
-      }
-    });
+
+    if (envDebug || options.debug) {
+      page.on('console', l => {
+        // tslint:disable-next-line:no-console
+        console.log('\x1b[36m%s\x1b[0m', l.text());
+      });
+    }
+
     await page.setViewport({ width, height });
     return { browser, page };
   }
@@ -112,7 +116,7 @@ export abstract class Puppet {
     return (await this.page.$(this.selector())) as ElementHandle;
   }
 
-  async waitFor() {
+  async waitFor(): Promise<void> {
     await this.page.waitForSelector(this.selector());
   }
 }
